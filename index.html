@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFF Flex Message Editor</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        clifford: '#da373d',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="container mx-auto p-4">
+        <div class="w-full max-w-md mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h1 class="text-2xl font-bold mb-4">LIFF Flex Message Editor</h1>
+            <div id="error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">エラー</strong>
+                <span id="errorMessage" class="block sm:inline"></span>
+            </div>
+            <div id="profile" class="hidden flex items-center space-x-4 mb-4">
+                <img id="profileImage" class="h-10 w-10 rounded-full" src="" alt="Profile Image">
+                <div>
+                    <p id="displayName" class="font-semibold"></p>
+                    <p id="statusMessage" class="text-sm text-gray-500"></p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="friendUrl">
+                    友だち追加URL
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="friendUrl" type="text" placeholder="https://line.me/R/ti/p/@example">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="adminUrl">
+                    管理画面URL
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="adminUrl" type="text" placeholder="https://example.com/mytrainer-admin">
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="managerUrl">
+                    LINE公式アカウント管理画面URL
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="managerUrl" type="text" placeholder="https://manager.line.biz">
+            </div>
+            <div class="flex items-center justify-between mb-4">
+                <button id="sendMessageBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                    メッセージを送信
+                </button>
+                <button id="shareMessageBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                    メッセージを共有
+                </button>
+            </div>
+            <div>
+                <button id="loginLogoutBtn" class="w-full bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                    LINEでログイン
+                </button>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-sm font-medium text-gray-700">デバッグ情報</h3>
+                <pre id="debugInfo" class="mt-1 text-xs bg-gray-100 p-2 rounded"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LIFF_ID = '2006675074-MdB7kQmZ';
+        let isLoggedIn = false;
+
+        const flexMessage = {
+            "type": "bubble",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "🎉 環境発行完了！",
+                        "weight": "bold",
+                        "size": "xl",
+                        "align": "center",
+                        "color": "#FFFFFF"
+                    },
+                    {
+                        "type": "text",
+                        "text": "MY TRAINERの準備が整いました",
+                        "size": "sm",
+                        "color": "#FFFFFF",
+                        "align": "center",
+                        "margin": "md"
+                    }
+                ],
+                "backgroundColor": "#27ACB2",
+                "paddingAll": "20px"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "1️⃣",
+                                        "size": "lg",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": "公式アカウントを友だち追加",
+                                                "size": "md",
+                                                "color": "#555555",
+                                                "weight": "bold"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": "まずはこのアカウントを追加して動作確認してみましょう",
+                                                "size": "xs",
+                                                "color": "#888888",
+                                                "wrap": true,
+                                                "margin": "sm"
+                                            }
+                                        ],
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "button",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "友だち追加する",
+                                    "uri": "https://line.me/R/ti/p/@example"
+                                },
+                                "style": "primary",
+                                "color": "#27ACB2",
+                                "margin": "md"
+                            }
+                        ],
+                        "backgroundColor": "#FFFFFF",
+                        "cornerRadius": "md",
+                        "paddingAll": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "2️⃣",
+                                        "size": "lg",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": "MY TRAINER管理画面",
+                                                "size": "md",
+                                                "color": "#555555",
+                                                "weight": "bold"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": "クライアントの指導内容の設定やキャラクターの追加ができます",
+                                                "size": "xs",
+                                                "color": "#888888",
+                                                "wrap": true,
+                                                "margin": "sm"
+                                            }
+                                        ],
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "button",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "管理画面を開く",
+                                    "uri": "https://example.com/mytrainer-admin"
+                                },
+                                "style": "primary",
+                                "color": "#27ACB2",
+                                "margin": "md"
+                            }
+                        ],
+                        "backgroundColor": "#FFFFFF",
+                        "cornerRadius": "md",
+                        "paddingAll": "md",
+                        "margin": "lg"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": "3️⃣",
+                                        "size": "lg",
+                                        "flex": 1
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": "LINE公式アカウント管理画面",
+                                                "size": "md",
+                                                "color": "#555555",
+                                                "weight": "bold"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": "チャットでのやり取りや各種設定ができます",
+                                                "size": "xs",
+                                                "color": "#888888",
+                                                "wrap": true,
+                                                "margin": "sm"
+                                            }
+                                        ],
+                                        "flex": 5
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "button",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "管理画面を開く",
+                                    "uri": "https://manager.line.biz"
+                                },
+                                "style": "primary",
+                                "color": "#27ACB2",
+                                "margin": "md"
+                            }
+                        ],
+                        "backgroundColor": "#FFFFFF",
+                        "cornerRadius": "md",
+                        "paddingAll": "md",
+                        "margin": "lg"
+                    }
+                ],
+                "paddingAll": "20px"
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "✨ すべての準備が整いました",
+                        "align": "center",
+                        "color": "#27ACB2",
+                        "weight": "bold"
+                    },
+                    {
+                        "type": "text",
+                        "text": "順番に設定を進めていきましょう！",
+                        "align": "center",
+                        "size": "xs",
+                        "color": "#888888",
+                        "margin": "sm"
+                    }
+                ]
+            },
+            "styles": {
+                "body": {
+                    "backgroundColor": "#F8F9FA"
+                }
+            }
+        };
+
+        function setDebugInfo(info) {
+            document.getElementById('debugInfo').textContent += info + '\n';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            const errorMessage = document.getElementById('errorMessage');
+            errorDiv.classList.remove('hidden');
+            errorMessage.textContent = message;
+        }
+
+        function hideError() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.add('hidden');
+        }
+
+        function updateLoginButton() {
+            const loginLogoutBtn = document.getElementById('loginLogoutBtn');
+            loginLogoutBtn.textContent = isLoggedIn ? 'ログアウト' : 'LINEでログイン';
+        }
+
+        function updateFlexMessage() {
+            flexMessage.body.contents[0].contents[1].action.uri = document.getElementById('friendUrl').value;
+            flexMessage.body.contents[1].contents[1].action.uri = document.getElementById('adminUrl').value;
+            flexMessage.body.contents[2].contents[1].action.uri = document.getElementById('managerUrl').value;
+        }
+
+        async function initializeLiff() {
+            try {
+                setDebugInfo('LIFF初期化開始...');
+                await liff.init({ liffId: LIFF_ID });
+                setDebugInfo('LIFF初期化成功');
+                if (liff.isLoggedIn()) {
+                    isLoggedIn = true;
+                    setDebugInfo('ユーザーはログイン済み');
+                    await fetchProfile();
+                } else {
+                    setDebugInfo('ユーザーは未ログイン');
+                }
+                updateLoginButton();
+            } catch (error) {
+                console.error('LIFF initialization failed', error);
+                showError(`LIFFの初期化に失敗しました: ${error.message}`);
+                setDebugInfo(`LIFF初期化エラー: ${error.message}`);
+            }
+        }
+
+        async function fetchProfile() {
+            setDebugInfo('プロフィール取得開始...');
+            if (!liff.isLoggedIn()) {
+                showError('ユーザーがログインしていません。');
+                setDebugInfo('プロフィール取得エラー: ユーザーが未ログイン');
+                return;
+            }
+
+            try {
+                const accessToken = liff.getAccessToken();
+                setDebugInfo(`アクセストークン: ${accessToken ? '取得成功' : '取得失敗'}`);
+                
+                const profile = await liff.getProfile();
+                document.getElementById('profile').classList.remove('hidden');
+                document.getElementById('profileImage').src = profile.pictureUrl;
+                document.getElementById('displayName').textContent = profile.displayName;
+                document.getElementById('statusMessage').textContent = profile.statusMessage || '';
+                setDebugInfo('プロフィール取得成功');
+            } catch (error) {
+                console.error('プロフィール取得エラー:', error);
+                showError(`プロフィールの取得に失敗しました: ${error.message}`);
+                setDebugInfo(`プロフィール取得エラー: ${error.message}`);
+            }
+        }
+
+        async function handleLogin() {
+            if (!liff.isLoggedIn()) {
+                setDebugInfo('ログイン処理開始...');
+                try {
+                    await liff.login();
+                    isLoggedIn = true;
+                    setDebugInfo('ログイン成功');
+                    await fetchProfile();
+                } catch (error) {
+                    console.error('ログインエラー:', error);
+                    showError(`ログインに失敗しました: ${error.message}`);
+                    setDebugInfo(`ログインエラー: ${error.message}`);
+                }
+            } else {
+                setDebugInfo('ログアウト処理開始...');
+                liff.logout();
+                isLoggedIn = false;
+                document.getElementById('profile').classList.add('hidden');
+                setDebugInfo('ログアウト成功');
+            }
+            updateLoginButton();
+        }
+
+        async function sendMessage() {
+            setDebugInfo('メッセージ送信開始...');
+            if (!liff.isLoggedIn()) {
+                showError('LINEにログインしていません。');
+                setDebugInfo('メッセージ送信エラー: 未ログイン');
+                return;
+            }
+
+            if (!liff.isInClient()) {
+                showError('このアプリはLINE内でのみ動作します。');
+                setDebugInfo('メッセージ送信エラー: LINE外での実行');
+                return;
+            }
+
+            updateFlexMessage();
+
+            try {
+                await liff.sendMessages([
+                    {
+                        type: 'flex',
+                        altText: 'MY TRAINER環境発行完了',
+                        contents: flexMessage
+                    }
+                ]);
+                setDebugInfo('メッセージ送信成功');
+                alert('メッセージが正常に送信されました！');
+            } catch (error) {
+                console.error('メッセージ送信エラー:', error);
+                showError(`メッセージの送信に失敗しました: ${error.message}`);
+                setDebugInfo(`メッセージ送信エラー: ${error.message}`);
+            }
+        }
+
+        async function shareMessage() {
+            setDebugInfo('メッセージ共有開始...');
+            if (!liff.isLoggedIn()) {
+                showError('LINEにログインしていません。');
+                setDebugInfo('メッセージ共有エラー: 未ログイン');
+                return;
+            }
+
+            updateFlexMessage();
+
+            try {
+                const result = await liff.shareTargetPicker([
+                    {
+                        type: 'flex',
+                        altText: 'MY TRAINER環境発行完了',
+                        contents: flexMessage
+                    }
+                ]);
+                if (result) {
+                    setDebugInfo('メッセージ共有成功');
+                    alert('メッセージが正常に共有されました！');
+                } else {
+                    setDebugInfo('メッセージ共有キャンセル');
+                }
+            } catch (error) {
+                console.error('メッセージ共有エラー:', error);
+                showError(`メッセージの共有に失敗しました: ${error.message}`);
+                setDebugInfo(`メッセージ共有エラー: ${error.message}`);
+            }
+        }
+
+        document.getElementById('loginLogoutBtn').addEventListener('click', handleLogin);
+        document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+        document.getElementById('shareMessageBtn').addEventListener('click', shareMessage);
+
+        initializeLiff();
+    </script>
+</body>
+</html>
+
