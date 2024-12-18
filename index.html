@@ -34,6 +34,12 @@
                 </div>
             </div>
             <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="trainerName">
+                    トレーナー名
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="trainerName" type="text" placeholder="トレーナー名を入力">
+            </div>
+            <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="friendUrl">
                     友だち追加URL
                 </label>
@@ -50,6 +56,40 @@
                     LINE公式アカウント管理画面URL
                 </label>
                 <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="managerUrl" type="text" placeholder="https://manager.line.biz">
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="customBubbles">
+                    カスタムバブル (JSON)
+                </label>
+                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="customBubbles" rows="10" placeholder='[
+  {
+    "header_text": "カスタムヘッダー",
+    "header_color": "#FF0000",
+    "body_contents": [
+      {
+        "type": "text",
+        "text": "カスタムボディテキスト",
+        "wrap": true
+      }
+    ],
+    "footer_contents": [
+      {
+        "type": "button",
+        "style": "primary",
+        "action": {
+          "type": "uri",
+          "label": "ボタン",
+          "uri": "https://example.com"
+        }
+      }
+    ],
+    "bubble_styles": {
+      "header": { "backgroundColor": "#FF0000" },
+      "body": { "backgroundColor": "#FFFFFF" },
+      "footer": { "backgroundColor": "#EEEEEE" }
+    }
+  }
+]'></textarea>
             </div>
             <div class="flex items-center justify-between mb-4">
                 <button id="sendMessageBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
@@ -75,240 +115,261 @@
         const LIFF_ID = '2006675074-MdB7kQmZ';
         let isLoggedIn = false;
 
-        const flexMessage = {
-            "type": "bubble",
-            "header": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": "🎉 環境発行完了！",
-                        "weight": "bold",
-                        "size": "xl",
-                        "align": "center",
-                        "color": "#FFFFFF"
-                    },
-                    {
-                        "type": "text",
-                        "text": "MY TRAINERの準備が整いました",
-                        "size": "sm",
-                        "color": "#FFFFFF",
-                        "align": "center",
-                        "margin": "md"
-                    }
-                ],
-                "backgroundColor": "#27ACB2",
-                "paddingAll": "20px"
-            },
-            "body": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "1️⃣",
-                                        "size": "lg",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "box",
-                                        "layout": "vertical",
-                                        "contents": [
-                                            {
-                                                "type": "text",
-                                                "text": "公式アカウントを友だち追加",
-                                                "size": "md",
-                                                "color": "#555555",
-                                                "weight": "bold"
-                                            },
-                                            {
-                                                "type": "text",
-                                                "text": "まずはこのアカウントを追加して動作確認してみましょう",
-                                                "size": "xs",
-                                                "color": "#888888",
-                                                "wrap": true,
-                                                "margin": "sm"
-                                            }
-                                        ],
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "button",
-                                "action": {
-                                    "type": "uri",
-                                    "label": "友だち追加する",
-                                    "uri": "https://line.me/R/ti/p/@example"
-                                },
-                                "style": "primary",
-                                "color": "#27ACB2",
-                                "margin": "md"
-                            }
-                        ],
-                        "backgroundColor": "#FFFFFF",
-                        "cornerRadius": "md",
-                        "paddingAll": "md"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "2️⃣",
-                                        "size": "lg",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "box",
-                                        "layout": "vertical",
-                                        "contents": [
-                                            {
-                                                "type": "text",
-                                                "text": "MY TRAINER管理画面",
-                                                "size": "md",
-                                                "color": "#555555",
-                                                "weight": "bold"
-                                            },
-                                            {
-                                                "type": "text",
-                                                "text": "クライアントの指導内容の設定やキャラクターの追加ができます",
-                                                "size": "xs",
-                                                "color": "#888888",
-                                                "wrap": true,
-                                                "margin": "sm"
-                                            }
-                                        ],
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "button",
-                                "action": {
-                                    "type": "uri",
-                                    "label": "管理画面を開く",
-                                    "uri": "https://example.com/mytrainer-admin"
-                                },
-                                "style": "primary",
-                                "color": "#27ACB2",
-                                "margin": "md"
-                            }
-                        ],
-                        "backgroundColor": "#FFFFFF",
-                        "cornerRadius": "md",
-                        "paddingAll": "md",
-                        "margin": "lg"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "box",
-                                "layout": "horizontal",
-                                "contents": [
-                                    {
-                                        "type": "text",
-                                        "text": "3️⃣",
-                                        "size": "lg",
-                                        "flex": 1
-                                    },
-                                    {
-                                        "type": "box",
-                                        "layout": "vertical",
-                                        "contents": [
-                                            {
-                                                "type": "text",
-                                                "text": "LINE公式アカウント管理画面",
-                                                "size": "md",
-                                                "color": "#555555",
-                                                "weight": "bold"
-                                            },
-                                            {
-                                                "type": "text",
-                                                "text": "チャットでのやり取りや各種設定ができます",
-                                                "size": "xs",
-                                                "color": "#888888",
-                                                "wrap": true,
-                                                "margin": "sm"
-                                            }
-                                        ],
-                                        "flex": 5
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "button",
-                                "action": {
-                                    "type": "uri",
-                                    "label": "管理画面を開く",
-                                    "uri": "https://manager.line.biz"
-                                },
-                                "style": "primary",
-                                "color": "#27ACB2",
-                                "margin": "md"
-                            }
-                        ],
-                        "backgroundColor": "#FFFFFF",
-                        "cornerRadius": "md",
-                        "paddingAll": "md",
-                        "margin": "lg"
-                    }
-                ],
-                "paddingAll": "20px"
-            },
-            "footer": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": "✨ すべての準備が整いました",
-                        "align": "center",
-                        "color": "#27ACB2",
-                        "weight": "bold"
-                    },
-                    {
-                        "type": "text",
-                        "text": "順番に設定を進めていきましょう！",
-                        "align": "center",
-                        "size": "xs",
-                        "color": "#888888",
-                        "margin": "sm"
-                    }
-                ]
-            },
-            "styles": {
+        function createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbles) {
+            const firstBubble = {
+                "type": "bubble",
+                "header": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "🎉 環境発行完了！",
+                            "weight": "bold",
+                            "size": "xl",
+                            "align": "center",
+                            "color": "#FFFFFF"
+                        },
+                        {
+                            "type": "text",
+                            "text": `${trainerName}さんをマイトレーナーに錬成しました！`,
+                            "size": "sm",
+                            "color": "#FFFFFF",
+                            "align": "center",
+                            "margin": "md"
+                        }
+                    ],
+                    "backgroundColor": "#27ACB2",
+                    "paddingAll": "20px"
+                },
                 "body": {
-                    "backgroundColor": "#F8F9FA"
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "1️⃣",
+                                            "size": "lg",
+                                            "flex": 1
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "公式アカウントを友だち追加",
+                                                    "size": "md",
+                                                    "color": "#555555",
+                                                    "weight": "bold"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "まずはこのアカウントを追加して動作確認してみましょう",
+                                                    "size": "xs",
+                                                    "color": "#888888",
+                                                    "wrap": true,
+                                                    "margin": "sm"
+                                                }
+                                            ],
+                                            "flex": 5
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "button",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "友だち追加する",
+                                        "uri": friendUrl
+                                    },
+                                    "style": "primary",
+                                    "color": "#27ACB2",
+                                    "margin": "md"
+                                }
+                            ],
+                            "backgroundColor": "#FFFFFF",
+                            "cornerRadius": "md",
+                            "paddingAll": "md"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "2️⃣",
+                                            "size": "lg",
+                                            "flex": 1
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "MY TRAINER管理画面",
+                                                    "size": "md",
+                                                    "color": "#555555",
+                                                    "weight": "bold"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "クライアントの指導内容の設定やキャラクターの追加ができます",
+                                                    "size": "xs",
+                                                    "color": "#888888",
+                                                    "wrap": true,
+                                                    "margin": "sm"
+                                                }
+                                            ],
+                                            "flex": 5
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "button",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "管理画面を開く",
+                                        "uri": adminUrl
+                                    },
+                                    "style": "primary",
+                                    "color": "#27ACB2",
+                                    "margin": "md"
+                                }
+                            ],
+                            "backgroundColor": "#FFFFFF",
+                            "cornerRadius": "md",
+                            "paddingAll": "md",
+                            "margin": "lg"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "3️⃣",
+                                            "size": "lg",
+                                            "flex": 1
+                                        },
+                                        {
+                                            "type": "box",
+                                            "layout": "vertical",
+                                            "contents": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "LINE公式アカウント管理画面",
+                                                    "size": "md",
+                                                    "color": "#555555",
+                                                    "weight": "bold"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "チャットでのやり取りや各種設定ができます",
+                                                    "size": "xs",
+                                                    "color": "#888888",
+                                                    "wrap": true,
+                                                    "margin": "sm"
+                                                }
+                                            ],
+                                            "flex": 5
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "button",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "管理画面を開く",
+                                        "uri": managerUrl
+                                    },
+                                    "style": "primary",
+                                    "color": "#27ACB2",
+                                    "margin": "md"
+                                }
+                            ],
+                            "backgroundColor": "#FFFFFF",
+                            "cornerRadius": "md",
+                            "paddingAll": "md",
+                            "margin": "lg"
+                        }
+                    ],
+                    "paddingAll": "20px"
+                },
+                "styles": {
+                    "body": {
+                        "backgroundColor": "#F8F9FA"
+                    }
                 }
-            }
-        };
+            };
+
+            const bubbles = [firstBubble];
+
+            customBubbles.forEach(customBubble => {
+                bubbles.push({
+                    "type": "bubble",
+                    "header": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": customBubble.header_text,
+                                "weight": "bold",
+                                "size": "xl",
+                                "color": "#FFFFFF"
+                            }
+                        ],
+                        "backgroundColor": customBubble.header_color,
+                        "paddingAll": "20px"
+                    },
+                    "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": customBubble.body_contents,
+                        "paddingAll": "20px"
+                    },
+                    "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": customBubble.footer_contents
+                    },
+                    "styles": customBubble.bubble_styles
+                });
+            });
+
+            return {
+                "type": "carousel",
+                "contents": bubbles
+            };
+        }
 
         function setDebugInfo(info) {
             document.getElementById('debugInfo').textContent += info + '\n';
         }
 
-        function showError(message) {
+        function showError(info) {
             const errorDiv = document.getElementById('error');
             const errorMessage = document.getElementById('errorMessage');
             errorDiv.classList.remove('hidden');
-            errorMessage.textContent = message;
+            errorMessage.textContent = info;
         }
 
         function hideError() {
@@ -319,12 +380,6 @@
         function updateLoginButton() {
             const loginLogoutBtn = document.getElementById('loginLogoutBtn');
             loginLogoutBtn.textContent = isLoggedIn ? 'ログアウト' : 'LINEでログイン';
-        }
-
-        function updateFlexMessage() {
-            flexMessage.body.contents[0].contents[1].action.uri = document.getElementById('friendUrl').value;
-            flexMessage.body.contents[1].contents[1].action.uri = document.getElementById('adminUrl').value;
-            flexMessage.body.contents[2].contents[1].action.uri = document.getElementById('managerUrl').value;
         }
 
         async function initializeLiff() {
@@ -409,7 +464,22 @@
                 return;
             }
 
-            updateFlexMessage();
+            const trainerName = document.getElementById('trainerName').value;
+            const friendUrl = document.getElementById('friendUrl').value;
+            const adminUrl = document.getElementById('adminUrl').value;
+            const managerUrl = document.getElementById('managerUrl').value;
+            const customBubblesJson = document.getElementById('customBubbles').value;
+
+            let customBubbles = [];
+            try {
+                customBubbles = JSON.parse(customBubblesJson);
+            } catch (error) {
+                showError('カスタムバブルのJSONが無効です。');
+                setDebugInfo(`カスタムバブルJSONエラー: ${error.message}`);
+                return;
+            }
+
+            const flexMessage = createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbles);
 
             try {
                 await liff.sendMessages([
@@ -436,7 +506,22 @@
                 return;
             }
 
-            updateFlexMessage();
+            const trainerName = document.getElementById('trainerName').value;
+            const friendUrl = document.getElementById('friendUrl').value;
+            const adminUrl = document.getElementById('adminUrl').value;
+            const managerUrl = document.getElementById('managerUrl').value;
+            const customBubblesJson = document.getElementById('customBubbles').value;
+
+            let customBubbles = [];
+            try {
+                customBubbles = JSON.parse(customBubblesJson);
+            } catch (error) {
+                showError('カスタムバブルのJSONが無効です。');
+                setDebugInfo(`カスタムバブルJSONエラー: ${error.message}`);
+                return;
+            }
+
+            const flexMessage = createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbles);
 
             try {
                 const result = await liff.shareTargetPicker([
