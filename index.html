@@ -57,39 +57,23 @@
                 </label>
                 <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="managerUrl" type="text" placeholder="https://manager.line.biz">
             </div>
-            <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="customBubbles">
-                    カスタムバブル (JSON)
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="customBubbleText">
+                    カスタムバブルテキスト
                 </label>
-                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="customBubbles" rows="10" placeholder='[
-  {
-    "header_text": "カスタムヘッダー",
-    "header_color": "#FF0000",
-    "body_contents": [
-      {
-        "type": "text",
-        "text": "カスタムボディテキスト",
-        "wrap": true
-      }
-    ],
-    "footer_contents": [
-      {
-        "type": "button",
-        "style": "primary",
-        "action": {
-          "type": "uri",
-          "label": "ボタン",
-          "uri": "https://example.com"
-        }
-      }
-    ],
-    "bubble_styles": {
-      "header": { "backgroundColor": "#FF0000" },
-      "body": { "backgroundColor": "#FFFFFF" },
-      "footer": { "backgroundColor": "#EEEEEE" }
-    }
-  }
-]'></textarea>
+                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="customBubbleText" rows="3" placeholder="カスタムバブルのテキストを入力"></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="customBubbleButtonLabel">
+                    カスタムバブルボタンラベル
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="customBubbleButtonLabel" type="text" placeholder="ボタンのラベルを入力">
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="customBubbleButtonUrl">
+                    カスタムバブルボタンURL
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="customBubbleButtonUrl" type="text" placeholder="https://example.com">
             </div>
             <div class="flex items-center justify-between mb-4">
                 <button id="sendMessageBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
@@ -115,7 +99,7 @@
         const LIFF_ID = '2006675074-MdB7kQmZ';
         let isLoggedIn = false;
 
-        function createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbles) {
+        function createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbleText, customBubbleButtonLabel, customBubbleButtonUrl) {
             const firstBubble = {
                 "type": "bubble",
                 "header": {
@@ -320,236 +304,220 @@
                 }
             };
 
-            const bubbles = [firstBubble];
-
-            customBubbles.forEach(customBubble => {
-                bubbles.push({
-                    "type": "bubble",
-                    "header": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "text",
-                                "text": customBubble.header_text,
-                                "weight": "bold",
-                                "size": "xl",
-                                "color": "#FFFFFF"
-                            }
-                        ],
-                        "backgroundColor": customBubble.header_color,
-                        "paddingAll": "20px"
-                    },
-                    "body": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": customBubble.body_contents,
-                        "paddingAll": "20px"
-                    },
-                    "footer": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": customBubble.footer_contents
-                    },
-                    "styles": customBubble.bubble_styles
-                });
-            });
-
-            return {
-                "type": "carousel",
-                "contents": bubbles
-            };
-        }
-
-        function setDebugInfo(info) {
-            document.getElementById('debugInfo').textContent += info + '\n';
-        }
-
-        function showError(info) {
-            const errorDiv = document.getElementById('error');
-            const errorMessage = document.getElementById('errorMessage');
-            errorDiv.classList.remove('hidden');
-            errorMessage.textContent = info;
-        }
-
-        function hideError() {
-            const errorDiv = document.getElementById('error');
-            errorDiv.classList.add('hidden');
-        }
-
-        function updateLoginButton() {
-            const loginLogoutBtn = document.getElementById('loginLogoutBtn');
-            loginLogoutBtn.textContent = isLoggedIn ? 'ログアウト' : 'LINEでログイン';
-        }
-
-        async function initializeLiff() {
-            try {
-                setDebugInfo('LIFF初期化開始...');
-                await liff.init({ liffId: LIFF_ID });
-                setDebugInfo('LIFF初期化成功');
-                if (liff.isLoggedIn()) {
-                    isLoggedIn = true;
-                    setDebugInfo('ユーザーはログイン済み');
-                    await fetchProfile();
-                } else {
-                    setDebugInfo('ユーザーは未ログイン');
+            const secondBubble = {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": customBubbleText,
+                            "wrap": true,
+                            "size": "md",
+                            "color": "#555555"
+                        },
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "action": {
+                                "type": "uri",
+                                "label": customBubbleButtonLabel,
+                                "uri": customBubbleButtonUrl
+                            },
+                            "margin": "md"
+                        }
+                    ],
+                    "paddingAll": "20px"
+                },
+                "styles": {
+                "body": {
+                    "backgroundColor": "#FFFFFF"
                 }
-                updateLoginButton();
-            } catch (error) {
-                console.error('LIFF initialization failed', error);
-                showError(`LIFFの初期化に失敗しました: ${error.message}`);
-                setDebugInfo(`LIFF初期化エラー: ${error.message}`);
             }
-        }
+        };
 
-        async function fetchProfile() {
-            setDebugInfo('プロフィール取得開始...');
-            if (!liff.isLoggedIn()) {
-                showError('ユーザーがログインしていません。');
-                setDebugInfo('プロフィール取得エラー: ユーザーが未ログイン');
-                return;
-            }
+        return {
+            "type": "carousel",
+            "contents": [firstBubble, secondBubble]
+        };
+    }
 
-            try {
-                const accessToken = liff.getAccessToken();
-                setDebugInfo(`アクセストークン: ${accessToken ? '取得成功' : '取得失敗'}`);
-                
-                const profile = await liff.getProfile();
-                document.getElementById('profile').classList.remove('hidden');
-                document.getElementById('profileImage').src = profile.pictureUrl;
-                document.getElementById('displayName').textContent = profile.displayName;
-                document.getElementById('statusMessage').textContent = profile.statusMessage || '';
-                setDebugInfo('プロフィール取得成功');
-            } catch (error) {
-                console.error('プロフィール取得エラー:', error);
-                showError(`プロフィールの取得に失敗しました: ${error.message}`);
-                setDebugInfo(`プロフィール取得エラー: ${error.message}`);
-            }
-        }
+    function setDebugInfo(info) {
+        document.getElementById('debugInfo').textContent += info + '\n';
+    }
 
-        async function handleLogin() {
-            if (!liff.isLoggedIn()) {
-                setDebugInfo('ログイン処理開始...');
-                try {
-                    await liff.login();
-                    isLoggedIn = true;
-                    setDebugInfo('ログイン成功');
-                    await fetchProfile();
-                } catch (error) {
-                    console.error('ログインエラー:', error);
-                    showError(`ログインに失敗しました: ${error.message}`);
-                    setDebugInfo(`ログインエラー: ${error.message}`);
-                }
+    function showError(message) {
+        const errorDiv = document.getElementById('error');
+        const errorMessage = document.getElementById('errorMessage');
+        errorDiv.classList.remove('hidden');
+        errorMessage.textContent = message;
+    }
+
+    function hideError() {
+        const errorDiv = document.getElementById('error');
+        errorDiv.classList.add('hidden');
+    }
+
+    function updateLoginButton() {
+        const loginLogoutBtn = document.getElementById('loginLogoutBtn');
+        loginLogoutBtn.textContent = isLoggedIn ? 'ログアウト' : 'LINEでログイン';
+    }
+
+    async function initializeLiff() {
+        try {
+            setDebugInfo('LIFF初期化開始...');
+            await liff.init({ liffId: LIFF_ID });
+            setDebugInfo('LIFF初期化成功');
+            if (liff.isLoggedIn()) {
+                isLoggedIn = true;
+                setDebugInfo('ユーザーはログイン済み');
+                await fetchProfile();
             } else {
-                setDebugInfo('ログアウト処理開始...');
-                liff.logout();
-                isLoggedIn = false;
-                document.getElementById('profile').classList.add('hidden');
-                setDebugInfo('ログアウト成功');
+                setDebugInfo('ユーザーは未ログイン');
             }
             updateLoginButton();
+        } catch (error) {
+            console.error('LIFF initialization failed', error);
+            showError(`LIFFの初期化に失敗しました: ${error.message}`);
+            setDebugInfo(`LIFF初期化エラー: ${error.message}`);
+        }
+    }
+
+    async function fetchProfile() {
+        setDebugInfo('プロフィール取得開始...');
+        if (!liff.isLoggedIn()) {
+            showError('ユーザーがログインしていません。');
+            setDebugInfo('プロフィール取得エラー: ユーザーが未ログイン');
+            return;
         }
 
-        async function sendMessage() {
-            setDebugInfo('メッセージ送信開始...');
-            if (!liff.isLoggedIn()) {
-                showError('LINEにログインしていません。');
-                setDebugInfo('メッセージ送信エラー: 未ログイン');
-                return;
-            }
+        try {
+            const accessToken = liff.getAccessToken();
+            setDebugInfo(`アクセストークン: ${accessToken ? '取得成功' : '取得失敗'}`);
+            
+            const profile = await liff.getProfile();
+            document.getElementById('profile').classList.remove('hidden');
+            document.getElementById('profileImage').src = profile.pictureUrl;
+            document.getElementById('displayName').textContent = profile.displayName;
+            document.getElementById('statusMessage').textContent = profile.statusMessage || '';
+            setDebugInfo('プロフィール取得成功');
+        } catch (error) {
+            console.error('プロフィール取得エラー:', error);
+            showError(`プロフィールの取得に失敗しました: ${error.message}`);
+            setDebugInfo(`プロフィール取得エラー: ${error.message}`);
+        }
+    }
 
-            if (!liff.isInClient()) {
-                showError('このアプリはLINE内でのみ動作します。');
-                setDebugInfo('メッセージ送信エラー: LINE外での実行');
-                return;
-            }
-
-            const trainerName = document.getElementById('trainerName').value;
-            const friendUrl = document.getElementById('friendUrl').value;
-            const adminUrl = document.getElementById('adminUrl').value;
-            const managerUrl = document.getElementById('managerUrl').value;
-            const customBubblesJson = document.getElementById('customBubbles').value;
-
-            let customBubbles = [];
+    async function handleLogin() {
+        if (!liff.isLoggedIn()) {
+            setDebugInfo('ログイン処理開始...');
             try {
-                customBubbles = JSON.parse(customBubblesJson);
+                await liff.login();
+                isLoggedIn = true;
+                setDebugInfo('ログイン成功');
+                await fetchProfile();
             } catch (error) {
-                showError('カスタムバブルのJSONが無効です。');
-                setDebugInfo(`カスタムバブルJSONエラー: ${error.message}`);
-                return;
+                console.error('ログインエラー:', error);
+                showError(`ログインに失敗しました: ${error.message}`);
+                setDebugInfo(`ログインエラー: ${error.message}`);
             }
+        } else {
+            setDebugInfo('ログアウト処理開始...');
+            liff.logout();
+            isLoggedIn = false;
+            document.getElementById('profile').classList.add('hidden');
+            setDebugInfo('ログアウト成功');
+        }
+        updateLoginButton();
+    }
 
-            const flexMessage = createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbles);
-
-            try {
-                await liff.sendMessages([
-                    {
-                        type: 'flex',
-                        altText: 'MY TRAINER環境発行完了',
-                        contents: flexMessage
-                    }
-                ]);
-                setDebugInfo('メッセージ送信成功');
-                alert('メッセージが正常に送信されました！');
-            } catch (error) {
-                console.error('メッセージ送信エラー:', error);
-                showError(`メッセージの送信に失敗しました: ${error.message}`);
-                setDebugInfo(`メッセージ送信エラー: ${error.message}`);
-            }
+    async function sendMessage() {
+        setDebugInfo('メッセージ送信開始...');
+        if (!liff.isLoggedIn()) {
+            showError('LINEにログインしていません。');
+            setDebugInfo('メッセージ送信エラー: 未ログイン');
+            return;
         }
 
-        async function shareMessage() {
-            setDebugInfo('メッセージ共有開始...');
-            if (!liff.isLoggedIn()) {
-                showError('LINEにログインしていません。');
-                setDebugInfo('メッセージ共有エラー: 未ログイン');
-                return;
-            }
+        if (!liff.isInClient()) {
+            showError('このアプリはLINE内でのみ動作します。');
+            setDebugInfo('メッセージ送信エラー: LINE外での実行');
+            return;
+        }
 
-            const trainerName = document.getElementById('trainerName').value;
-            const friendUrl = document.getElementById('friendUrl').value;
-            const adminUrl = document.getElementById('adminUrl').value;
-            const managerUrl = document.getElementById('managerUrl').value;
-            const customBubblesJson = document.getElementById('customBubbles').value;
+        const trainerName = document.getElementById('trainerName').value;
+        const friendUrl = document.getElementById('friendUrl').value;
+        const adminUrl = document.getElementById('adminUrl').value;
+        const managerUrl = document.getElementById('managerUrl').value;
+        const customBubbleText = document.getElementById('customBubbleText').value;
+        const customBubbleButtonLabel = document.getElementById('customBubbleButtonLabel').value;
+        const customBubbleButtonUrl = document.getElementById('customBubbleButtonUrl').value;
 
-            let customBubbles = [];
-            try {
-                customBubbles = JSON.parse(customBubblesJson);
-            } catch (error) {
-                showError('カスタムバブルのJSONが無効です。');
-                setDebugInfo(`カスタムバブルJSONエラー: ${error.message}`);
-                return;
-            }
+        const flexMessage = createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbleText, customBubbleButtonLabel, customBubbleButtonUrl);
 
-            const flexMessage = createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbles);
-
-            try {
-                const result = await liff.shareTargetPicker([
-                    {
-                        type: 'flex',
-                        altText: 'MY TRAINER環境発行完了',
-                        contents: flexMessage
-                    }
-                ]);
-                if (result) {
-                    setDebugInfo('メッセージ共有成功');
-                    alert('メッセージが正常に共有されました！');
-                } else {
-                    setDebugInfo('メッセージ共有キャンセル');
+        try {
+            await liff.sendMessages([
+                {
+                    type: 'flex',
+                    altText: 'MY TRAINER環境発行完了',
+                    contents: flexMessage
                 }
-            } catch (error) {
-                console.error('メッセージ共有エラー:', error);
-                showError(`メッセージの共有に失敗しました: ${error.message}`);
-                setDebugInfo(`メッセージ共有エラー: ${error.message}`);
-            }
+            ]);
+            setDebugInfo('メッセージ送信成功');
+            alert('メッセージが正常に送信されました！');
+        } catch (error) {
+            console.error('メッセージ送信エラー:', error);
+            showError(`メッセージの送信に失敗しました: ${error.message}`);
+            setDebugInfo(`メッセージ送信エラー: ${error.message}`);
+        }
+    }
+
+    async function shareMessage() {
+        setDebugInfo('メッセージ共有開始...');
+        if (!liff.isLoggedIn()) {
+            showError('LINEにログインしていません。');
+            setDebugInfo('メッセージ共有エラー: 未ログイン');
+            return;
         }
 
-        document.getElementById('loginLogoutBtn').addEventListener('click', handleLogin);
-        document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
-        document.getElementById('shareMessageBtn').addEventListener('click', shareMessage);
+        const trainerName = document.getElementById('trainerName').value;
+        const friendUrl = document.getElementById('friendUrl').value;
+        const adminUrl = document.getElementById('adminUrl').value;
+        const managerUrl = document.getElementById('managerUrl').value;
+        const customBubbleText = document.getElementById('customBubbleText').value;
+        const customBubbleButtonLabel = document.getElementById('customBubbleButtonLabel').value;
+        const customBubbleButtonUrl = document.getElementById('customBubbleButtonUrl').value;
 
-        initializeLiff();
-    </script>
+        const flexMessage = createFlexMessage(trainerName, friendUrl, adminUrl, managerUrl, customBubbleText, customBubbleButtonLabel, customBubbleButtonUrl);
+
+        try {
+            const result = await liff.shareTargetPicker([
+                {
+                    type: 'flex',
+                    altText: 'MY TRAINER環境発行完了',
+                    contents: flexMessage
+                }
+            ]);
+            if (result) {
+                setDebugInfo('メッセージ共有成功');
+                alert('メッセージが正常に共有されました！');
+            } else {
+                setDebugInfo('メッセージ共有キャンセル');
+            }
+        } catch (error) {
+            console.error('メッセージ共有エラー:', error);
+            showError(`メッセージの共有に失敗しました: ${error.message}`);
+            setDebugInfo(`メッセージ共有エラー: ${error.message}`);
+        }
+    }
+
+    document.getElementById('loginLogoutBtn').addEventListener('click', handleLogin);
+    document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+    document.getElementById('shareMessageBtn').addEventListener('click', shareMessage);
+
+    initializeLiff();
+</script>
 </body>
 </html>
 
